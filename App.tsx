@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Expense } from './types';
-import { categorizeExpense } from './services/geminiService';
+// We don't need categorizeExpense service anymore, the logic is simpler now.
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
 
@@ -14,11 +14,27 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const category = await categorizeExpense(description);
+      // The fetch call now expects a full JSON object back from the API
+      const response = await fetch('/api/categorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expense: description }),
+      });
+
+      if (!response.ok) {
+        // Handle cases where the API returns an error (like 500)
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+
       const newExpense: Expense = {
-        description,
-        category,
         date: new Date().toLocaleDateString(),
+        description: data.description, // Use the cleaned description from the AI
+        category: data.category,
+        value: data.value,
       };
       setExpenses(prevExpenses => [newExpense, ...prevExpenses]);
     } catch (err) {
