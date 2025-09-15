@@ -8,8 +8,11 @@ interface ExpenseListProps {
 
 const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
   const exportToCsv = () => {
-    const headers = 'Date,Description,Category\n';
-    const rows = expenses.map(e => `${e.date},"${e.description.replace(/"/g, '""')}","${e.category}"`).join('\n');
+    // --- UPDATE CSV HEADERS ---
+    const headers = 'Date,Description,Value,Category\n';
+    // --- UPDATE CSV ROWS to include the value ---
+    const rows = expenses.map(e => `${e.date},"${e.description.replace(/"/g, '""')}",${e.value},"${e.category}"`).join('\n');
+    
     const csvContent = headers + rows;
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -38,6 +41,8 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
           <tr>
             <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Date</th>
             <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Description</th>
+            {/* --- ADD NEW VALUE HEADER --- */}
+            <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Value</th>
             <th style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Category</th>
           </tr>
         </thead>
@@ -46,6 +51,8 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ expenses }) => {
             <tr key={index}>
               <td style={{ border: '1px solid #ddd', padding: '8px' }}>{exp.date}</td>
               <td style={{ border: '1px solid #ddd', padding: '8px' }}>{exp.description}</td>
+              {/* --- ADD NEW VALUE CELL --- */}
+              <td style={{ border: '1px solid #ddd', padding: '8px' }}>{exp.value}</td>
               <td style={{ border: '1px solid #ddd', padding: '8px' }}>{exp.category}</td>
             </tr>
           ))}
