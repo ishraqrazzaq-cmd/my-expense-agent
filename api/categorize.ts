@@ -24,7 +24,6 @@ export default async function handler(
       return res.status(400).json({ error: 'Expense description is required' });
     }
 
-    // --- NEW, UPGRADED PROMPT ---
     const prompt = `
       Analyze the following expense entry. Your task is to extract three pieces of information and return them as a valid JSON object.
       1.  "category": Categorize the expense into one of these categories: Food, Transport, Bills, Entertainment, Shopping, Health, Other.
@@ -39,10 +38,16 @@ export default async function handler(
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const jsonText = response.text().trim();
+    let text = response.text().trim();
 
-    // Parse the JSON string returned by the AI
-    const data = JSON.parse(jsonText);
+    // --- NEW CLEANING STEP ---
+    // This removes the "```json" at the start and the "```" at the end.
+    if (text.startsWith('```json')) {
+      text = text.substring(7, text.length - 3);
+    }
+    // --- END CLEANING STEP ---
+
+    const data = JSON.parse(text);
 
     res.status(200).json(data);
 
